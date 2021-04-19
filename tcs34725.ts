@@ -4,6 +4,7 @@
 const TCS34725_I2C_ADDRESS = 0x29        //I2C address of the TCS34725 (Page 34)
 
 /* TCS34725 register addresses (Page 20)*/
+const TCS34725_REGISTER_ID = 0x12		    // The ID Register provides the value for the part number. The ID register is a read-only register.
 
 const TCS34725_REGISTER_COMMAND = 0x80		// Specifies register address 保留
 
