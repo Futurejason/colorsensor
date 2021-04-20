@@ -290,9 +290,9 @@ namespace TCS34725 {
     }
     //% blockId="getSensorData" block="get color data %colorId"
     export function getSensorData(colorId: RGB): number {
+        start(TCS34725_ATIME,TCS34725_AGAIN);
         let data = getSensorRGB();
         let color = 0;
-
         switch (colorId) {
             case RGB.RED: color = data.red;
                 break;
