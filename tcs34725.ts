@@ -48,9 +48,7 @@ const TCS34725_REGISTER_BDATAH = 0x1B		// Blue data high byte
 /* #region Enums for Modes, etc */
 
 // Parameters for setting the internal integration time of the RGBC clear and IR channel.
-enum TCS34725_ATIME {
-    TIME_50_MS = 0xF6
-}
+const TCS34725_ATIME = 0xF6;
 
 // Parameters for setting the wait time register.
 enum TCS34725_WTIME {
@@ -158,7 +156,7 @@ namespace TCS34725 {
             isConnected = true;
     }
 
-    export function turnSensorOn(atime: TCS34725_ATIME) {
+    export function turnSensorOn(TCS34725_ATIME: number) {
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ENABLE (0x00)
@@ -172,12 +170,12 @@ namespace TCS34725 {
         //REGISTER WRITE:    TCS34725_REGISTER_PON_ENABLE (0x01) | TCS34725_REGISTER_AEN_ENABLE (0x02)        
         RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE);
 
-        pauseSensorForIntegrationTime(atime);
+        pauseSensorForIntegrationTime(TCS34725_ATIME);
     }
 
-    export function pauseSensorForIntegrationTime(atime: TCS34725_ATIME) {
-        switch (atime) {
-            case TCS34725_ATIME.TIME_50_MS: {
+    export function pauseSensorForIntegrationTime(TCS34725_ATIME: number) {
+        switch (TCS34725_ATIME) {
+            case TCS34725_ATIME: {
                 basic.pause(50);
                 break;
             }
@@ -195,21 +193,21 @@ namespace TCS34725 {
         RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, sensorReg & ~(TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE));
     }
 
-    export function setATIMEintegration(atime: TCS34725_ATIME) {
+    export function setATIMEintegration(TCS34725_ATIME: number) {
         //Always make sure the color sensor is connected. Useful for cases when this block is used but the sensor wasn't set randomly. 
         if (!isConnected)
             initSensor()
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ATIME (0x01)
-        //REGISTER WRITE:    atime                
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ATIME, atime)
+        //REGISTER WRITE:    TCS34725_ATIME                
+        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ATIME, TCS34725_ATIME)
 
-        atimeIntegrationValue = atime;
+        atimeIntegrationValue = TCS34725_ATIME;
 
     }
 
-    export function setGAINsensor(TCS34725_AGAIN) {
+    export function setGAINsensor(TCS34725_AGAIN: number) {
         //Always make sure the color sensor is connected. Useful for cases when this block is used but the sensor wasn't set randomly. 
         if (!isConnected)
             initSensor()
@@ -222,15 +220,15 @@ namespace TCS34725 {
         gainSensorValue = TCS34725_AGAIN;
     }
 
-    export function start(atime: TCS34725_ATIME, TCS34725_AGAIN) {
+    export function start(TCS34725_ATIME: number , TCS34725_AGAIN: number) {
 
         while (!isConnected) {
             initSensor();
         }
 
-        setATIMEintegration(atime);
+        setATIMEintegration(TCS34725_ATIME);
         setGAINsensor(TCS34725_AGAIN);
-        turnSensorOn(atime);
+        turnSensorOn(TCS34725_ATIME);
     }
 
     export type RGBC = {
