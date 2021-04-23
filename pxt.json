@@ -8,11 +8,7 @@
     },
     "files": [
         "README.md",
-        "main.ts",
-        "tcs34725.ts"
-    ],
-    "testFiles": [
-        "test.ts"
+        "main.ts"
     ],
     "public": false,
     "preferredEditor": "tsprj"
