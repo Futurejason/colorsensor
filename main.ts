@@ -1,4 +1,4 @@
- // Samuel Niederer
+// Samuel Niederer
 // TCS34725 extension
 const TCS34725_I2C_ADDRESS = 0x29        //I2C address of the TCS34725 (Page 34)
 
@@ -131,11 +131,23 @@ enum GESTURE_TYPE {
 }
 
 //Functions for helping with reading and writing registers of different sizes
-namespace RegisterHelper {
+
+
+
+
+
+
+//% weight=100 color=#0fbc11 icon=""
+namespace TCS34725 {
+
+    let TCS34725_I2C_ADDR = TCS34725_I2C_ADDRESS;
+    export let isConnected = false;
+    let atimeIntegrationValue = 0;
+    let gainSensorValue = 0
 
     /**
-     * Write register of the address location
-     */
+    * Write register of the address location
+    */
     export function writeRegister(addr: number, reg: number, dat: number): void {
         let _registerBuffer = pins.createBuffer(2);
         _registerBuffer[0] = reg;
@@ -167,20 +179,11 @@ namespace RegisterHelper {
         return pins.i2cReadNumber(addr, NumberFormat.Int16LE);
     }
 
-}
-
-//% weight=100 color=#0fbc11 icon=""
-namespace TCS34725 {
-
-    let TCS34725_I2C_ADDR = TCS34725_I2C_ADDRESS;
-    export let isConnected = false;
-    let atimeIntegrationValue = 0;
-    let gainSensorValue = 0
 
     export function initSensor() {
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ID (0x12)
-        let device_id = RegisterHelper.readRegister8(TCS34725_I2C_ADDRESS, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ID)
+        let device_id = readRegister8(TCS34725_I2C_ADDRESS, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ID)
 
         //Check that device Identification has one of 2 i2c addresses         
         if ((device_id != 0x44) && (device_id != 0x10)) {
@@ -195,14 +198,14 @@ namespace TCS34725 {
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ENABLE (0x00)
         //REGISTER WRITE:    TCS34725_REGISTER_PON_ENABLE (0x01)
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, TCS34725_REGISTER_PON_ENABLE);
+        writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, TCS34725_REGISTER_PON_ENABLE);
         basic.pause(300);
 
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ENABLE (0x00)
         //REGISTER WRITE:    TCS34725_REGISTER_PON_ENABLE (0x01) | TCS34725_REGISTER_AEN_ENABLE (0x02)        
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE);
+        writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE);
 
         pauseSensorForIntegrationTime(TCS34725_ATIME);
     }
@@ -219,12 +222,12 @@ namespace TCS34725 {
     export function turnSensorOff() {
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ID (0x12)        
-        let sensorReg = RegisterHelper.readRegister8(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE);
+        let sensorReg = readRegister8(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE);
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ENABLE (0x00)
         //REGISTER WRITE:    sensorReg & ~(TCS34725_REGISTER_PON_ENABLE (0x01) | TCS34725_REGISTER_AEN_ENABLE (0x02))            
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, sensorReg & ~(TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE));
+        writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ENABLE, sensorReg & ~(TCS34725_REGISTER_PON_ENABLE | TCS34725_REGISTER_AEN_ENABLE));
     }
 
     export function setATIMEintegration(TCS34725_ATIME: number) {
@@ -235,7 +238,7 @@ namespace TCS34725 {
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_ATIME (0x01)
         //REGISTER WRITE:    TCS34725_ATIME                
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ATIME, TCS34725_ATIME)
+        writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_ATIME, TCS34725_ATIME)
 
         atimeIntegrationValue = TCS34725_ATIME;
 
@@ -249,12 +252,12 @@ namespace TCS34725 {
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER VALUE:    TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_CONTROL (0x0F)
         //REGISTER WRITE:    TCS34725_AGAIN         
-        RegisterHelper.writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_CONTROL, TCS34725_AGAIN)
+        writeRegister(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_CONTROL, TCS34725_AGAIN)
 
         gainSensorValue = TCS34725_AGAIN;
     }
 
-    export function start(TCS34725_ATIME: number , TCS34725_AGAIN: number) {
+    export function start(TCS34725_ATIME: number, TCS34725_AGAIN: number) {
 
         while (!isConnected) {
             initSensor();
@@ -280,19 +283,19 @@ namespace TCS34725 {
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_RDATAL (0x16)          
-        let redColorValue = RegisterHelper.readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_RDATAL);
+        let redColorValue = readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_RDATAL);
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_GDATAL (0x18)          
-        let greenColorValue = RegisterHelper.readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_GDATAL);
+        let greenColorValue = readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_GDATAL);
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_BDATAL (0x1A)          
-        let blueColorValue = RegisterHelper.readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_BDATAL);
+        let blueColorValue = readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_BDATAL);
 
         //REGISTER FORMAT:   CMD | TRANSACTION | ADDRESS
         //REGISTER READ:     TCS34725_REGISTER_COMMAND (0x80) | TCS34725_REGISTER_CDATAL (0x14)          
-        let clearColorValue = RegisterHelper.readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_CDATAL);
+        let clearColorValue = readRegisterUInt16(TCS34725_I2C_ADDR, TCS34725_REGISTER_COMMAND | TCS34725_REGISTER_CDATAL);
 
         pauseSensorForIntegrationTime(atimeIntegrationValue);
 
@@ -324,7 +327,7 @@ namespace TCS34725 {
     }
     //% blockId="getSensorData" block="get color data %colorId"
     export function getSensorData(colorId: RGB): number {
-        start(TCS34725_ATIME,TCS34725_AGAIN);
+        start(TCS34725_ATIME, TCS34725_AGAIN);
         let data = getSensorRGB();
         let color = 0;
         switch (colorId) {
